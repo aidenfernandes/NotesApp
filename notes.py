@@ -7,7 +7,7 @@ notes_bp=Blueprint("notes",__name__,template_folder="templates")
 @notes_bp.route("/notes", methods=["GET","POST"])
 def notes():
     if request.method=="POST":
-        note=Note(note=request.form.get("notes"))
+        note=Note(note=request.form.get("note"))
         db.session.add(note)
         db.session.commit()
 
