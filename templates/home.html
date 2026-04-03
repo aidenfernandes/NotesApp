@@ -4,12 +4,53 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        a {
+            display: inline-block;
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        #login-link {
+            padding: 20px;
+            background-color: yellow;
+            border-radius: 5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black;
+            
+        }  
+        #signup-link {
+            padding: 20px;
+            background-color: cyan;
+            border-radius: 5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black;
+        } 
+        #notes-link {
+            padding: 20px;
+            background-color: lightgray;
+            border-radius: 5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: black;
+        } 
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Home Page</h1>   
-    <a href="/login">Login</a>
-    <a href="/signup">Signup</a>
-    <a href="/notes">Notes</a>
+    <h1 align="center">Welcome to the Home Page</h1>   
+    <a id="login-link" href="/login">Login</a>
+    <a id="signup-link" href="/signup">Signup</a>
+    <a id="notes-link" href="/notes">Notes</a>
     </body>
 
 </html>
