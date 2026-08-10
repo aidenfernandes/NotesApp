@@ -4,18 +4,150 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Notes</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            }
+            h1 {
+                color: #333;
+                margin-bottom: 25px;
+                text-align: center;
+            }
+            .note-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 30px;
+            }
+            .note-form input {
+                flex: 1;
+                padding: 12px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+                transition: border-color 0.3s;
+            }
+            .note-form input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+            .note-form button {
+                padding: 12px 25px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                transition: background 0.3s;
+            }
+            .note-form button:hover {
+                background: #764ba2;
+            }
+            .notes-list {
+                list-style: none;
+            }
+            .note-item {
+                background: #f8f9fa;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                border-left: 4px solid #667eea;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: background 0.3s;
+            }
+            .note-item:hover {
+                background: #e8e9fa;
+            }
+            .note-text {
+                flex: 1;
+                color: #333;
+                word-break: break-word;
+            }
+            .delete-btn {
+                background: none;
+                border: none;
+                color: #e74c3c;
+                cursor: pointer;
+                font-size: 24px;
+                padding: 5px 10px;
+                transition: color 0.3s;
+                flex-shrink: 0;
+                margin-left: 10px;
+            }
+            .delete-btn:hover {
+                color: #c0392b;
+            }
+            .error {
+                color: #e74c3c;
+                background: #fadbd8;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 15px;
+            }
+        </style>
     </head>
 <body>
-    <h1>Your Notes</h1>
-    <form action="/notes" method="POST">
-        <label for="note">Enter The Note:</label>
-        <input type="text" id="note" name="note" required>
-        <button type="submit">Add Note</button>
-    </form>
-    <ul class="list-group list-group-flush" id ="notes"> 
-    {% for note in current_user.notes %}
-        <li class="list-group-item">{{note.note}}</li>
-    {% endfor %}
-    </ul>
+    <div class="container">
+        <h1>My Notes</h1>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+        <form class="note-form" action="/notes" method="POST">
+            <input type="text" id="note" name="note" placeholder="Add a new note..." required>
+            <button type="submit">Add</button>
+        </form>
+        <ul class="notes-list"> 
+        {% for note in notes %}
+            <li class="note-item">
+                <span class="note-text">{{note.note}}</span>
+                <button type="button" class="delete-btn" onclick="deleteNote({{note.id}})" title="Delete note">&times;</button>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    <script>
+        function deleteNote(noteId) {
+            console.log('Deleting note:', noteId);
+            fetch('/delete-note/' + noteId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error deleting note: ' + JSON.stringify(data));
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error);
+            });
+        }
+    </script>
 </body>
 </html>
