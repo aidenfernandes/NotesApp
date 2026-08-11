@@ -70,17 +70,53 @@
                 border-radius: 5px;
                 border-left: 4px solid #667eea;
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
+                flex-direction: column;
+                gap: 10px;
                 transition: background 0.3s;
             }
             .note-item:hover {
                 background: #e8e9fa;
             }
+            .note-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+            }
             .note-text {
                 flex: 1;
                 color: #333;
                 word-break: break-word;
+            }
+            .note-meta {
+                font-size: 12px;
+                color: #666;
+            }
+            .search-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .search-form input {
+                flex: 1;
+                padding: 10px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+            }
+            .search-form button, .edit-btn {
+                padding: 10px 14px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            .search-form button {
+                background: #333;
+                color: white;
+            }
+            .edit-btn {
+                background: #f0ad4e;
+                color: white;
             }
             .delete-btn {
                 background: none;
@@ -111,6 +147,10 @@
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
+        <form class="search-form" method="GET" action="/notes">
+            <input type="text" name="q" placeholder="Search notes..." value="{{ q or '' }}">
+            <button type="submit">Search</button>
+        </form>
         <form class="note-form" action="/notes" method="POST">
             <input type="text" id="note" name="note" placeholder="Add a new note..." required>
             <button type="submit">Add</button>
@@ -118,25 +158,56 @@
         <ul class="notes-list"> 
         {% for note in notes %}
             <li class="note-item">
-                <span class="note-text">{{note.note}}</span>
-                <button type="button" class="delete-btn" onclick="deleteNote({{note.id}})" title="Delete note">&times;</button>
+                <div class="note-top">
+                    <span class="note-text">{{note.note}}</span>
+                    <button type="button" class="delete-btn" onclick="deleteNote({{note.id}})" title="Delete note">&times;</button>
+                </div>
+                <div class="note-meta">
+                    Created: {{ note.date.strftime('%Y-%m-%d %H:%M') if note.date else 'Unknown' }}
+                    {% if note.updated_at %}
+                        | Updated: {{ note.updated_at.strftime('%Y-%m-%d %H:%M') }}
+                    {% endif %}
+                </div>
+                <button type="button" class="edit-btn" onclick="startEdit({{note.id}}, '{{ note.note|replace("\\", "\\\\")|replace("'", "\\'") }}')">Edit</button>
             </li>
         {% endfor %}
         </ul>
     </div>
     <script>
+        function startEdit(noteId, currentText) {
+            const newText = prompt('Edit your note:', currentText);
+            if (newText === null) {
+                return;
+            }
+
+            fetch('/edit-note/' + noteId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'note=' + encodeURIComponent(newText)
+            })
+            .then(response => response.json().then(data => ({ status: response.status, data })))
+            .then(result => {
+                if (result.status === 200 && result.data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(result.data.message || 'Error updating note');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error);
+            });
+        }
+
         function deleteNote(noteId) {
-            console.log('Deleting note:', noteId);
             fetch('/delete-note/' + noteId, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'}
             })
             .then(response => {
-                console.log('Response status:', response.status);
                 return response.json();
             })
             .then(data => {
-                console.log('Response data:', data);
                 if (data.status === 'success') {
                     location.reload();
                 } else {

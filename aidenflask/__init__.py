@@ -10,10 +10,10 @@ from models import User, Note
 
 def create_db(app):
    with app.app_context():
-      if not path.exists(DB_NAME):
-          db.create_all()
+    db.create_all()
 
 
+# function to create the flask app, register blueprints and initialize the database
 def create():
     app=Flask(__name__)
     app.config["SECRET_KEY"]="aiden"

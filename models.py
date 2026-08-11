@@ -1,6 +1,6 @@
 from aidenflask import db
 from flask_login import UserMixin
-from sqlalchemy .sql import func
+from datetime import datetime
 
 class User(db.Model, UserMixin):
     id=db.Column(db.Integer, primary_key=True)
@@ -13,5 +13,6 @@ class User(db.Model, UserMixin):
 class Note(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     note=db.Column(db.String(100000))
-    date=db.Column(db.DateTime(timezone=True),default=func.now)
+    date=db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    updated_at=db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id=db.Column(db.Integer, db.ForeignKey("user.id"))
